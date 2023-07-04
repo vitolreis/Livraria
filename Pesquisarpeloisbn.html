@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Pesquisador ISBN Vitor</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .search-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .search-container input[type="text"] {
+      padding: 10px;
+      font-size: 16px;
+      width: 300px;
+      border: none;
+      border-radius: 4px;
+      margin-right: 10px;
+    }
+
+    .search-container button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    #resultsContainer {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      grid-gap: 20px;
+    }
+
+    .book-card {
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 10px;
+    }
+
+    .book-card h2 {
+      margin-top: 0;
+      font-size: 20px;
+    }
+
+    .book-card p {
+      margin-top: 0;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .book-card img {
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>Pesquisar Livros</h1>
+  <div class="search-container">
+    <input type="text" id="isbnInput" placeholder="Digite o Titulo">
+    <button onclick="searchBooks()">Search</button>
+  </div>
+  <div id="resultsContainer"></div>
+
+  <script src="script.js"></script>
+  <script>
+
+    function searchBooks() {
+      const isbn = document.getElementById("isbnInput").value;
+      const apiUrl = "https://www.googleapis.com/books/v1/volumes?q=" + isbn;
+
+      fetch(apiUrl)
+        .then((response) => response.json())
+        .then((data) => displayResults(data.items))
+        .catch((error) => console.log(error));
+    }
+
+    function displayResults(books) {
+      const resultsContainer = document.getElementById("resultsContainer");
+      resultsContainer.innerHTML = ""; // Clear previous results
+
+      if (books.length === 0) {
+        resultsContainer.innerHTML = "No books found.";
+        return;
+      }
+
+      books.forEach((book) => {
+        const { title, authors, description, imageLinks } = book.volumeInfo;
+
+        const bookElement = document.createElement("div");
+        bookElement.innerHTML = "<h2>" + title + "</h2>" +
+          "<p>" + (authors && authors.join(", ")) + "</p>" +
+          "<p>ISBN: " + book.volumeInfo.industryIdentifiers[0].identifier + "</p>" +
+          "<p>" + description + "</p>" +
+          "<img src='" + (imageLinks?.thumbnail || "") + "' alt='" + title + "'>";
+
+        resultsContainer.appendChild(bookElement);
+      });
+    }
+  </script>
+</body>
+</html>
